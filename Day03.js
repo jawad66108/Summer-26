@@ -91,54 +91,109 @@ let name = "Moshsin Khan";
 // companies.push("Amazon");
 // console.log(companies);
 
-let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+// let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-let double = numbers.map((num) => num * 2);
+// let double = numbers.map((num) => num * 2);
 
-console.log(double);
+// console.log(double);
 
-let names = ["jawad", "ali", "ahmed"];
+// let names = ["jawad", "ali", "ahmed"];
 
-// Create a new array where every name is converted to uppercase.
+// // Create a new array where every name is converted to uppercase.
 
-console.log(names.map((i) => i.toUpperCase()));
+// console.log(names.map((i) => i.toUpperCase()));
 
-let students = [
-  {
-    name: "Jawad",
-    marks: 90,
-  },
-  {
-    name: "Ali",
-    marks: 80,
-  },
-  {
-    name: "Ahmed",
-    marks: 70,
-  },
+// let students = [
+//   {
+//     name: "Jawad",
+//     marks: 90,
+//   },
+//   {
+//     name: "Ali",
+//     marks: 80,
+//   },
+//   {
+//     name: "Ahmed",
+//     marks: 70,
+//   },
+// ];
+
+// console.log(students.map((i) => i.name));
+
+// // Find students who passed:
+
+// let students = [
+//   { name: "Jawad", marks: 90 },
+//   { name: "Ali", marks: 40 },
+//   { name: "Ahmed", marks: 75 },
+// ];
+
+// console.log(students.filter((i) => i.marks > 50));
+// // Condition:
+
+// // marks >= 50
+
+// // Find the product with name "Laptop":
+
+// let products = [
+//   { name: "Mouse", price: 2000 },
+//   { name: "Laptop", price: 90000 },
+//   { name: "Keyboard", price: 5000 },
+// ];
+
+// console.log(products.find((i) => i.name === "Laptop"));
+
+// // Find the sum:
+
+// let numbers = [5, 10, 15, 20];
+// let res = numbers.reduce((sum , i) => sum + i,0 );
+// console.log(res)
+
+// // Q2
+
+// // Find the total marks:
+
+// let students = [
+//     { name: "Jawad", marks: 90 },
+//     { name: "Ali", marks: 80 },
+//     { name: "Ahmed", marks: 70 }
+// ];
+
+// let T_marks = students.reduce((total_marks , i)  => total_marks + i.marks, 0)
+// console.log(T_marks)
+
+// let students = [
+//   { name: "Jawad", marks: 90 },
+//   { name: "Ali", marks: 40 },
+//   { name: "Ahmed", marks: 75 },
+//   { name: "Sara", marks: 30 },
+// ];
+
+// let Total_S = students.reduce(
+//   (T_std, i) => (i.marks >= 50 ? T_std + 1 : T_std),
+//   0,
+// );
+// console.log(Total_S);
+
+// Given:
+
+let employees = [
+  { name: "Ali", salary: 50000, department: "IT" },
+  { name: "Ahmed", salary: 60000, department: "HR" },
+  { name: "Jawad", salary: 70000, department: "IT" },
+  { name: "Sara", salary: 55000, department: "IT" },
 ];
 
-console.log(students.map((i) => i.name));
+let T_S_IT = employees.reduce(
+  (T_salary, i) => (i.department === "IT" ? T_salary + i.salary : T_salary),
+  0,
+);
+console.log(T_S_IT);
 
-// Find students who passed:
 
-let students = [
-  { name: "Jawad", marks: 90 },
-  { name: "Ali", marks: 40 },
-  { name: "Ahmed", marks: 75 },
-];
 
-console.log(students.filter((i) => i.marks > 50));
-// Condition:
+// Find the total salary of only IT employees.
 
-// marks >= 50
+// Expected Output:
 
-// Find the product with name "Laptop":
-
-let products = [
-  { name: "Mouse", price: 2000 },
-  { name: "Laptop", price: 90000 },
-  { name: "Keyboard", price: 5000 },
-];
-
-console.log(products.find((i) => i.name === "Laptop"));
+// 175000
