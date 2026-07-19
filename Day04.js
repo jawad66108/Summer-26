@@ -84,8 +84,53 @@
 
 // to every user.
 
-let users = [{ name: "Ali" }, { name: "Jawad" }, { name: "Sara" }];
+// let users = [{ name: "Ali" }, { name: "Jawad" }, { name: "Sara" }];
 
-users.forEach((i) => (i.verified = true));
+// users.forEach((i) => (i.verified = true));
 
-console.log(users);
+// console.log(users);
+
+// Find the total salary of all IT employees.
+
+let employees = [
+  { name: "Ali", department: "IT", salary: 50000 },
+  { name: "Jawad", department: "HR", salary: 70000 },
+  { name: "Sara", department: "IT", salary: 60000 },
+  { name: "Ahmed", department: "Finance", salary: 55000 },
+];
+
+let T_salary = employees.reduce(
+  (T_S, i) => (i.department === "IT" ? (T_S += i.salary) : T_S),
+  0,
+);
+
+console.log(T_salary);
+
+// You have a list of users:
+
+let users = [
+  { id: 1, name: "Ali", active: true },
+  { id: 2, name: "Jawad", active: false },
+  { id: 3, name: "Sara", active: true },
+  { id: 4, name: "Ahmed", active: false },
+];
+
+let A_users = users.filter((i) => i.active === true);
+
+let Count = A_users.length;
+
+let names = A_users.map((i) => i.name);
+
+console.log(`Active users: ${A_users} Count: ${Count} Nmaes: ${names}`);
+
+let orders = [
+  { id: 1, customer: "Ali", status: "Delivered", amount: 3000 },
+  { id: 2, customer: "Jawad", status: "Pending", amount: 4500 },
+  { id: 3, customer: "Sara", status: "Delivered", amount: 2000 },
+  { id: 4, customer: "Ahmed", status: "Cancelled", amount: 1500 },
+  { id: 5, customer: "Bilal", status: "Delivered", amount: 5000 },
+];
+
+let D_orders = orders.filter((i) => i.status === "Delivered");
+
+console.log(D_orders);
