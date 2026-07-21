@@ -210,28 +210,30 @@
 // let emp1 = new manager("Mahnoor Saleem", 1000, "CS");
 // emp1.showdetails();
 
-class user {
-  constructor(username, email) {
-    this.username = username;
-    this.email = email;
-  }
+// class user {
+//   constructor(username, email) {
+//     this.username = username;
+//     this.email = email;
+//   }
 
-  login() {
-    return "User successfully login";
-  }
-}
+//   login() {
+//     return "User successfully login";
+//   }
+// }
 
-class admin extends user {
-  constructor(username, email, role) {
-    super(username, email);
-    this.role = role;
-  }
-  delUser() {
-    return "The that was login is now deleted";
-  }
-}
+// class admin extends user {
+//   constructor(username, email, role) {
+//     super(username, email);
+//     this.role = role;
+//   }
+//   delUser() {
+//     return "The that was login is now deleted";
+//   }
+// }
 
-let A = new admin("Mohsin Khan", "Ronaldo@C.R", "Captain");
+// let A = new admin("Mohsin Khan", "Ronaldo@C.R", "Captain");
 
-A.login();
-A.delUser();
+// A.login();
+// A.delUser();
+
+
