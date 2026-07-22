@@ -147,56 +147,56 @@
 // let makecoffe = (callback) => {
 //   console.log("Boiling water......");
 //   setTimeout(() => {
-//     console.log("Water boiled, adding coffee....");
-//     setTimeout(() => {
-//       callback(`Coffe is ready`);
-//     }, 1000);
-//   }, 1500);
-// };
+    console.log("Water boiled, adding coffee....");
+    setTimeout(() => {
+      callback(`Coffe is ready`);
+    }, 1000);
+  }, 1500);
+};
 
-// makecoffe((callback) => {
-//   console.log(callback);
-// });
+makecoffe((callback) => {
+  console.log(callback);
+});
 
-// let checklogin = (username, password, callback) => {
-//   console.log(`Checking credentials...`);
-//   setTimeout(() => {
-//     if (username === "admin" && password === "1234") {
-//       callback(`login successfull as ${username}`);
-//     } else {
-//       callback(`Login Failed Try Again`);
-//     }
-//   }, 2000);
-// };
+let checklogin = (username, password, callback) => {
+  console.log(`Checking credentials...`);
+  setTimeout(() => {
+    if (username === "admin" && password === "1234") {
+      callback(`login successfull as ${username}`);
+    } else {
+      callback(`Login Failed Try Again`);
+    }
+  }, 2000);
+};
 
-// checklogin("admin", "1234", (callback) => {
-//   console.log(callback);
-// });
+checklogin("admin", "1234", (callback) => {
+  console.log(callback);
+});
 
-// let withdrawMoney = (balance, amount, callback) => {
-//   console.log("Processing withdrawal...");
-//   setTimeout(() => {
-//     if (amount <= balance) {
-//       callback(`Withdrawal successful. New balance: ${balance - amount}`);
-//     } else {
-//       callback`Insufficient funds`;
-//     }
-//   }, 1500);
-// };
+let withdrawMoney = (balance, amount, callback) => {
+  console.log("Processing withdrawal...");
+  setTimeout(() => {
+    if (amount <= balance) {
+      callback(`Withdrawal successful. New balance: ${balance - amount}`);
+    } else {
+      callback`Insufficient funds`;
+    }
+  }, 1500);
+};
 
-// withdrawMoney(1000, 400, (callback) => {
-//   console.log(callback);
-// });
+withdrawMoney(1000, 400, (callback) => {
+  console.log(callback);
+});
 
-// let processOrders = (orders, callback) => {
-//   for (let i = 0; i < orders.length; i++) {
-//     console.log(`order received: ${orders[i]}`);
-//     setTimeout(() => {
-//       callback(`${orders[i]} is ready!`);
-//     }, 1000);
-//   }
-// };
+let processOrders = (orders, callback) => {
+  for (let i = 0; i < orders.length; i++) {
+    console.log(`order received: ${orders[i]}`);
+    setTimeout(() => {
+      callback(`${orders[i]} is ready!`);
+    }, 1000);
+  }
+};
 
-// processOrders(["Pizza", "Burger"], (callback) => {
-//   console.log(callback);
-// });
+processOrders(["Pizza", "Burger"], (callback) => {
+  console.log(callback);
+});
