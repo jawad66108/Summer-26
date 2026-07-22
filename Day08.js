@@ -94,21 +94,68 @@
 //     console.log(err);
 //   });
 
-let fetchUser = (userId) => {
-  return new Promise((resolve, reject) => {
-    console.log(`Fetching user data...`);
+// let fetchUser = (userId) => {
+//   return new Promise((resolve, reject) => {
+//     console.log(`Fetching user data...`);
+//     setTimeout(() => {
+//       userId > 0
+//         ? resolve(`{ id: ${userId}, name: "User" + ${userId}}`)
+//         : reject(`Invalid user ID`);
+//     }, 1500);
+//   });
+// };
+
+// Promise.all([fetchUser(23), fetchUser(34), fetchUser(55)])
+//   .then((res) => {
+//     console.log(res);
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
+
+// let checkAge = (age) => {
+//   return new Promise((resolve, reject) => {
+//     console.log(`Checking the age....`);
+//     setTimeout(() => {
+//       console.log(`furthur validating....`);
+//       setTimeout(() => {
+//         age >= 18 ? resolve(`You are allowed`) : reject(`You are rejected`);
+//       }, 1000);
+//     }, 2000);
+//   });
+// };
+
+// let age = 20;
+// async function run() {
+//   try {
+//     await checkAge((age) => {
+//       console.log(res);
+//     });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
+
+// run();
+
+let balance = 1000;
+let deposit = (balance, amount) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
-      userId > 0
-        ? resolve(`{ id: ${userId}, name: "User" + ${userId}}`)
-        : reject(`Invalid user ID`);
-    }, 1500);
+      resolve(balance + amount);
+    }, 1000);
   });
 };
 
-Promise.all([fetchUser(23), fetchUser(34), fetchUser(55)])
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+async function run() {
+  // try{
+  //     await deposit((balance,200) => {
+  //         console.log(res);
+  //     });
+  // }
+
+  let newbalance = await deposit(balance, 200);
+  console.log(newbalance);
+}
+
+run();
