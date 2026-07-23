@@ -138,24 +138,24 @@
 
 // run();
 
-let balance = 1000;
-let deposit = (balance, amount) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(balance + amount);
-    }, 1000);
-  });
-};
+// let balance = 1000;
+// let deposit = (balance, amount) => {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve(balance + amount);
+//     }, 1000);
+//   });
+// };
 
-async function run() {
-  // try{
-  //     await deposit((balance,200) => {
-  //         console.log(res);
-  //     });
-  // }
+// async function run() {
+//   // try{
+//   //     await deposit((balance,200) => {
+//   //         console.log(res);
+//   //     });
+//   // }
 
-  let newbalance = await deposit(balance, 200);
-  console.log(newbalance);
-}
+//   let newbalance = await deposit(balance, 200);
+//   console.log(newbalance);
+// }
 
-run();
+// run();
