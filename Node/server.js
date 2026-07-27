@@ -98,26 +98,113 @@
 //   console.log("Server started to run");
 // });
 
+// import express from "express";
+
+// let app = express();
+
+// app.get("/api/employee/:id", (req, res) => {
+//   let incSalary = req.query.incSalary;
+//   if (incSalary === "true") {
+//     res.json({
+//       ID: req.params.id,
+//       Name: "Mahnoor",
+//       Salary: 5000,
+//     });
+//   } else {
+//     res.json({
+//       ID: req.params.id,
+//       Name: "Mahnoor",
+//     });
+//   }
+// });
+
+// app.listen(3000, () => {
+//   console.log("Your server is successfully runing!!!");
+// });
+
+// import express from "express";
+
+// let app = express();
+
+// app.get("/api/isEven/:number", (req, res) => {
+//   let num = Number(req.params.number);
+//   if (num % 2 === 0) {
+//     res.json({
+//       Result: `${num} is Even`,
+//     });
+//   } else {
+//     res.json({
+//       Result: `${num} is Odd`,
+//     });
+//   }
+// });
+
+// app.listen(3000, () => {});
+
+// app.post("/api/register/", (req, res) => {
+//   console.log(req.body);
+//   let username = req.body.username;
+//   let password = req.body.password;
+
+//   res.json({
+//     message: "Registered",
+//     username: username,
+//   });
+// });
+// import express from "express";
+
+// let app = express();
+
+// app.use(express.json());
+
+// app.post("/api/notes", (req, res) => {
+//   let title = req.body.title;
+//   let content = req.body.content;
+
+//   res.json({
+//     message: "Notes created",
+//     title: title,
+//   });
+// });
+
+// app.post("/api/login", (req, res) => {
+//   let email = req.body.email;
+//   let password = req.body.password;
+//   if (email.empty || password.empty) {
+//     res.status(400).json({ error: " Email and Password are required!!" });
+//   } else {
+//     res.json({
+//       message: "Login Successfull!!",
+//       email: email,
+//     });
+//   }
+// });
+
+// app.post("/api/users/:id/comments", (req, res) => {
+//   res.json({
+//     ID: req.params.id,
+//     comments: req.body.comments,
+//   });
+// });
+
+// app.listen(3000, () => {
+//   console.log("Server running on port 3000");
+// });
+
 import express from "express";
 
 let app = express();
 
-app.get("/api/employee/:id", (req, res) => {
-  let incSalary = req.query.incSalary;
-  if (incSalary === "true") {
-    res.json({
-      ID: req.params.id,
-      Name: "Mahnoor",
-      Salary: 5000,
-    });
-  } else {
-    res.json({
-      ID: req.params.id,
-      Name: "Mahnoor",
-    });
-  }
+app.use(express.json());
+
+app.post("/api/cart", (req, res) => {
+  let items = req.body.cart;
+  res.json({
+    itemCount: items.length,
+    items: items,
+  });
 });
 
 app.listen(3000, () => {
-  console.log("Your server is successfully runing!!!");
+  console.log(" your server is working perfectty");
 });
