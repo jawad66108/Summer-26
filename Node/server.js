@@ -191,20 +191,47 @@
 //   console.log("Server running on port 3000");
 // });
 
+// import express from "express";
+
+// let app = express();
+
+// app.use(express.json());
+
+// app.post("/api/cart", (req, res) => {
+//   let items = req.body.cart;
+//   res.json({
+//     itemCount: items.length,
+//     items: items,
+//   });
+// });
+
+// app.listen(3000, () => {
+//   console.log(" your server is working perfectty");
+// });
+
 import express from "express";
 
 let app = express();
 
 app.use(express.json());
 
-app.post("/api/cart", (req, res) => {
-  let items = req.body.cart;
+app.put("/api/notess/:id", (req, res) => {
+  let id = req.params.id;
+  let title = req.body.title;
+  let content = req.body.content;
+
   res.json({
-    itemCount: items.length,
-    items: items,
+    Cmessage: "Successfull data updated",
+  });
+});
+
+app.delete("/api/notes/:id", (req, res) => {
+  res.json({
+    id: req.params.id,
+    Message: `Data succesfully deleted`,
   });
 });
 
 app.listen(3000, () => {
-  console.log(" your server is working perfectty");
+  console.log("Server running succesfully!!!");
 });
