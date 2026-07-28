@@ -209,29 +209,50 @@
 //   console.log(" your server is working perfectty");
 // });
 
+// import express from "express";
+
+// let app = express();
+
+// app.use(express.json());
+
+// app.put("/api/notess/:id", (req, res) => {
+//   let id = req.params.id;
+//   let title = req.body.title;
+//   let content = req.body.content;
+
+//   res.json({
+//     Cmessage: "Successfull data updated",
+//   });
+// });
+
+// app.delete("/api/notes/:id", (req, res) => {
+//   res.json({
+//     id: req.params.id,
+//     Message: `Data succesfully deleted`,
+//   });
+// });
+
+// app.listen(3000, () => {
+//   console.log("Server running succesfully!!!");
+// });
+
+//========Small Proejct===============
 import express from "express";
+import allNotesRouter from "./routes/AllNotes.js";
+import oneNoteRouter from "./routes/OneNote.js";
+import createNoteRouter from "./routes/CreateNote.js";
+import upNoteRouter from "./routes/UpNote.js";
+import delNoteRouter from "./routes/DelNote.js";
 
 let app = express();
-
 app.use(express.json());
 
-app.put("/api/notess/:id", (req, res) => {
-  let id = req.params.id;
-  let title = req.body.title;
-  let content = req.body.content;
-
-  res.json({
-    Cmessage: "Successfull data updated",
-  });
-});
-
-app.delete("/api/notes/:id", (req, res) => {
-  res.json({
-    id: req.params.id,
-    Message: `Data succesfully deleted`,
-  });
-});
+app.use("/api/notes", allNotesRouter);
+app.use("/api/notes", oneNoteRouter);
+app.use("/api/notes", createNoteRouter);
+app.use("/api/notes", upNoteRouter);
+app.use("/api/notes", delNoteRouter);
 
 app.listen(3000, () => {
-  console.log("Server running succesfully!!!");
+  console.log("Server is running perfectly!!");
 });
