@@ -1,5 +1,5 @@
 import express from "express";
-import exp from "./expenses";
+import exp from "../expenses.js";
 
 let router = express.Router();
 
