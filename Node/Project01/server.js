@@ -237,6 +237,9 @@
 // });
 
 //========Small Proejct===============
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import allNotesRouter from "./routes/AllNotes.js";
 import oneNoteRouter from "./routes/OneNote.js";
