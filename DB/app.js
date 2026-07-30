@@ -1,17 +1,21 @@
 import express from "express";
 import pool from "./connection.js";
+import postapi from "./posting.js";
 
 let app = express();
 
-// app.get("/api/std", async (req, res) => {
-//   console.log("all students ");
-//   try {
-//     let data = await pool.query("select*from students");
-//     res.json(data.rows);
-//   } catch (err) {
-//     res.status(500).json({ err: err.message });
-//   }
-// });
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true }));
+
+app.get("/api/std", async (req, res) => {
+  console.log("all students ");
+  try {
+    let data = await pool.query("select*from students");
+    res.json(data.rows);
+  } catch (err) {
+    res.status(500).json({ err: err.message });
+  }
+});
 
 // app.get("/api/std/:id", async (req, res) => {
 //   try {
@@ -104,6 +108,8 @@ app.get("/api/std/search/", async (req, res) => {
     res.status(500).json({ err: err.message });
   }
 });
+
+app.use("/api/std", postapi);
 
 app.listen(3000, () => {
   console.log("Server runing successfully!!");
