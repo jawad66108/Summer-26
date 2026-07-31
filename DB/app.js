@@ -1,21 +1,22 @@
 import express from "express";
 import pool from "./connection.js";
 import postapi from "./posting.js";
+import moreapi from "./moreapi.js";
 
 let app = express();
 
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/api/std", async (req, res) => {
-  console.log("all students ");
-  try {
-    let data = await pool.query("select*from students");
-    res.json(data.rows);
-  } catch (err) {
-    res.status(500).json({ err: err.message });
-  }
-});
+// app.get("/api/std", async (req, res) => {
+//   console.log("all students ");
+//   try {
+//     let data = await pool.query("select*from students");
+//     res.json(data.rows);
+//   } catch (err) {
+//     res.status(500).json({ err: err.message });
+//   }
+// });
 
 // app.get("/api/std/:id", async (req, res) => {
 //   try {
@@ -58,12 +59,12 @@ app.get("/api/std", async (req, res) => {
 //     let age = req.query.age;
 //     let name = req.query.name;
 
-// let col = ["age", "name"];
+//     let col = ["age", "name"];
 
-// if (!{ age, name }.include(col))
-//   return res
-//     .status(404)
-//     .json({ err: "Not found the col you are looking for" });
+//     if (!{ age, name }.include(col))
+//       return res
+//         .status(404)
+//         .json({ err: "Not found the col you are looking for" });
 
 //     if (agge && naame) {
 //       let data = await pool.query(`select name,age from students`);
@@ -80,38 +81,39 @@ app.get("/api/std", async (req, res) => {
 //   }
 // });
 
-app.get("/api/std/search/", async (req, res) => {
-  let Sname = req.query.name;
-  let Sage = req.query.age;
+// app.get("/api/std/search/", async (req, res) => {
+//   let Sname = req.query.name;
+//   let Sage = req.query.age;
 
-  try {
-    if (Sname && Sage) {
-      let data = await pool.query(
-        `select * from students where name = $1 AND age = $2`,
-        [Sname, Sage],
-      );
-      return res.json(data.rows);
-    } else if (Sname && !Sage) {
-      let data = await pool.query(`select  * from students where name = $1`, [
-        Sname,
-      ]);
-      res.json(data.rows);
-    } else if (!Sname && Sage) {
-      let data = await pool.query(`select * from students where age=$1`, [
-        Sage,
-      ]);
-      res.json(data.rows);
-    } else {
-      res.json({ err: "You can only search from name and age" });
-    }
-  } catch (err) {
-    res.status(500).json({ err: err.message });
-  }
-});
+//   try {
+//     if (Sname && Sage) {
+//       let data = await pool.query(
+//         `select * from students where name = $1 AND age = $2`,
+//         [Sname, Sage],
+//       );
+//       return res.json(data.rows);
+//     } else if (Sname && !Sage) {
+//       let data = await pool.query(`select  * from students where name = $1`, [
+//         Sname,
+//       ]);
+//       res.json(data.rows);
+//     } else if (!Sname && Sage) {
+//       let data = await pool.query(`select * from students where age=$1`, [
+//         Sage,
+//       ]);
+//       res.json(data.rows);
+//     } else {
+//       res.json({ err: "You can only search from name and age" });
+//     }
+//   } catch (err) {
+//     res.status(500).json({ err: err.message });
+//   }
+// });
 
 app.use("/api/std", postapi);
 app.use("/api/std", postapi);
 app.use("/api/std", postapi);
+app.use("/api/std", moreapi);
 
 app.listen(3000, () => {
   console.log("Server runing successfully!!");
