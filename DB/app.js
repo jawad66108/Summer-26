@@ -110,6 +110,8 @@ app.get("/api/std/search/", async (req, res) => {
 });
 
 app.use("/api/std", postapi);
+app.use("/api/std", postapi);
+app.use("/api/std", postapi);
 
 app.listen(3000, () => {
   console.log("Server runing successfully!!");
