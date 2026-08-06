@@ -88,13 +88,99 @@ use("ecommerce");
 //   },
 // );
 
-db.products.updateOne(
+// db.products.updateOne(
+//   {
+//     name: "Gaming Laptop",
+//   },
+//   {
+//     $push: {
+//       features: "HDR Support",
+//     },
+//   },
+// );
+
+// db.products.deleteOne({
+//   productId: "P008",
+// });
+
+// db.products.deleteMany({
+//   rating: { $lt: 4.6 },
+// });
+
+// db.products.createIndex({
+//   price: 1,
+// });
+
+// db.products.createIndex({
+//   status: 1,
+// });
+
+// db.products.getIndexes();
+
+// db.products.find({
+//     category: "Laptop"
+// }).explain("executionStats")
+
+// db.products.aggregate([
+//   {
+//     $match: {
+//       brand: "Samsung",
+//     },
+//   },
+// ]);
+
+// db.products.find({ brand: "Samsung" })
+
+// db.products.aggregate([
+//   {
+//     $match: {
+//       category: "Laptop",
+//       price: {
+//         $gt: 2000,
+//       },
+//     },
+//   },
+// ]);
+
+// db.orders.aggregate([
+//   {
+//     $match: {
+//       status: "Delivered",
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $project: {
+//       name: 1,
+//       brand: 1,
+//       _id: 0,
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $project: {
+//       productname: "$name",
+//       productPrice: "$price",
+//       _id: 0,
+//     },
+//   },
+// ]);
+
+db.products.aggregate([
   {
-    name: "Gaming Laptop",
-  },
-  {
-    $push: {
-      features: "HDR Support",
+    $match: {
+      brand: "Samsung",
     },
   },
-);
+  {
+    $project: {
+      productname: 1,
+      productPrice: 1,
+      _id: 0,
+    },
+  },
+]);
