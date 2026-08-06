@@ -292,24 +292,84 @@ use("ecommerce");
 //   },
 // ]);
 
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$category",
+//       TProducts: {
+//         $sum: "$name",
+//       },
+//       Stock: {
+//         $sum: "$stock",
+//       },
+//       AvgP: {
+//         $avg: "$price",
+//       },
+//       CP: {
+//         $min: "$price",
+//       },
+//       HP: {
+//         $max: "$price",
+//       },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $project: {
+//       name: 1,
+//       price: 1,
+//       _id: 0,
+//     },
+//   },
+//   {
+//     $sort: {
+//       price: -1,
+//     },
+//   },
+//   {
+//     $limit: 3,
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $match: {
+//       brand: "Apple",
+//       price: { "$gt": 2500 },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$category",
+
+//       HA: {
+//         $avg: "$price",
+//       },
+//     },
+//   },
+//   {
+//     $sort: {
+//       HA: 1,
+//     },
+//   },
+//   {
+//     $limit: 1
+//   }
+// ]);
+
 db.products.aggregate([
   {
     $group: {
       _id: "$category",
-      TProducts: {
-        $sum: "$name",
-      },
-      Stock: {
-        $sum: "$stock",
-      },
-      AvgP: {
-        $avg: "$price",
-      },
-      CP: {
-        $min: "$price",
-      },
-      HP: {
-        $max: "$price",
+      TInv: {
+        $sum: {
+          $multiply: ["$price", "$stock"],
+        },
       },
     },
   },

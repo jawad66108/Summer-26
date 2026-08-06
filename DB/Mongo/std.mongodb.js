@@ -9,7 +9,7 @@ use("ecommerce");
 
 // db.students.find({ grade: "A" });
 
-db.students.updateOne(
-  { name: "Ali" },
-  { $set: { subjects: ["Math", "Physics", "AI"] } },
-);
+// db.students.updateOne(
+//   { name: "Ali" },
+//   { $set: { subjects: ["Math", "Physics", "AI"] } },
+// );
