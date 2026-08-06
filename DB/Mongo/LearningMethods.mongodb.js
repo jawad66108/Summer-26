@@ -170,17 +170,147 @@ use("ecommerce");
 //   },
 // ]);
 
+// db.products.aggregate([
+//   {
+//     $match: {
+//       brand: "Samsung",
+//     },
+//   },
+//   {
+//     $project: {
+//       name: 1,
+//       price: 1,
+//       _id: 0,
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $project: {
+//       name: 1,
+//       price: 1,
+//       _id:0
+//     },
+//   },
+//   {
+//     $sort: {
+//       price: -1,
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $match: {
+//       brand: "Apple",
+//     },
+//   },
+//   {
+//     $project: {
+//       name: 1,
+//       price: 1,
+//       _id: 0,
+//     },
+//   },
+//   {
+//     $sort: {
+//       price: -1,
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $sort: {
+//       price: -1,
+//     },
+//   },
+//   {
+//     $limit: 3,
+//   },
+// ]);
+
+// db.orders.aggregate([
+//   {
+//     $group: {
+//       _id: "$status",
+//       sum: {
+//         $sum: 1,
+//       },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$category",
+//       sum: {
+//         $sum: "$price",
+//       },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$category",
+//       count: {
+//         $sum: 1,
+//       },
+//       Tsum: {
+//         $sum: "$price",
+//       },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$brand",
+//       fieldN: {
+//         $avg: "$rating",
+//       },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$category",
+//       cheapest: {
+//         $min: "$price",
+//       },
+//       MExpensive: {
+//         $max : "$price",
+//       }
+//     },
+//   },
+// ]);
+
 db.products.aggregate([
   {
-    $match: {
-      brand: "Samsung",
-    },
-  },
-  {
-    $project: {
-      productname: 1,
-      productPrice: 1,
-      _id: 0,
+    $group: {
+      _id: "$category",
+      TProducts: {
+        $sum: "$name",
+      },
+      Stock: {
+        $sum: "$stock",
+      },
+      AvgP: {
+        $avg: "$price",
+      },
+      CP: {
+        $min: "$price",
+      },
+      HP: {
+        $max: "$price",
+      },
     },
   },
 ]);
