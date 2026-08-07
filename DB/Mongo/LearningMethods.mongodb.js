@@ -362,15 +362,93 @@ use("ecommerce");
 //   }
 // ]);
 
-db.products.aggregate([
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$category",
+//       TInv: {
+//         $sum: {
+//           $multiply: ["$price", "$stock"],
+//         },
+//       },
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $group: {
+//       _id: "$brand",
+//       LPro: {
+//         $max: "$stock",
+//       },
+//     },
+//   },{
+//     $limit: 1
+//   }
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $sort: {
+//       rating: -1,
+//     },
+//   },
+//   {
+//     $limit: 5,
+//   },
+//   {
+//     $project: {
+//       name: 1,
+//       rating: 1,
+//       _id: 0,
+//     },
+//   },
+// ]);
+
+// db.products.aggregate([
+//   {
+//     $sort: {
+//       rating: -1,
+//     },
+//   },
+//   {
+//     $match: {
+//       rating: { $gt: 4.7 },
+//       price: { $lt: 3000000 },
+//     },
+//   },
+//   {
+//     $project: {
+//       name: 1,
+//       rating: 1,
+//       price: 1,
+//       _id: 0,
+//     },
+//   },
+// ]);
+
+// db.products.deleteMany({
+//   stock: { $lt: 5 },
+// });
+// db.products.updateMany(
+//   {
+//     category: "Mobile"
+//   },
+//   {
+//     $inc: {
+//       stock: 10
+//     }
+//   }
+// );
+
+db.products.updateOne(
   {
-    $group: {
-      _id: "$category",
-      TInv: {
-        $sum: {
-          $multiply: ["$price", "$stock"],
-        },
-      },
+    brand: "Apple",
+  },
+  {
+    $push: {
+      tag: "Feature",
     },
   },
-]);
+);
