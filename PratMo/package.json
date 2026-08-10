@@ -1,0 +1,16 @@
+{
+  "name": "pratmo",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "...",
+    "mongoose": "..."
+  },
+  "devDependencies": {
+    "nodemon": "..."
+  }
+}
