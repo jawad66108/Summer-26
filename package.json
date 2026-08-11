@@ -7,10 +7,12 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "...",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "..."
   },
   "devDependencies": {
-    "nodemon": "..."
+    "nodemon": "file:..."
   }
 }
