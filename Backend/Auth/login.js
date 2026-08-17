@@ -10,25 +10,26 @@ router.post("/register", async (req, res) => {
   try {
     let { username, password, role } = req.body;
 
-    let Finduser = await db.query(`Select from users where username = $1`, [
+    let Finduser = await db.query(`SELECT * FROM users WHERE username = $1`, [
       username,
     ]);
 
     if (Finduser.rows.length > 0) {
       return res
-        .status(201)
-        .json({ Msg: "Username already exsist try to login!" });
+        .status(409)
+        .json({ msg: "Username already exists, try to login!" });
     }
 
-    let haspass = await bcrypt.hash(password, 10);
+    let hashpass = await bcrypt.hash(password, 10);
 
     let data = await db.query(
-      `insert into users username,haspass,role values $1,$2,$3 RETURNING `[
-        (username, haspass, role || "committee")
-      ],
+      `INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3) RETURNING id, username, role`,
+      [username, hashpass, role || "committee"],
     );
 
-    res.json({ msg: `User Register Successfull `, user: "data.rows[0]" });
+    res
+      .status(201)
+      .json({ msg: "User registered successfully", user: data.rows[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -36,21 +37,21 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    let { username, password } = body.req;
+    let { username, password } = req.body;
 
-    let checkuser = await res.query(`select from users where username = $1`, [
+    let checkuser = await db.query(`SELECT * FROM users WHERE username = $1`, [
       username,
     ]);
 
-    if (!checkuser) {
-      return res.json({
-        msg: "User name is Invalid",
-      });
+    let user = checkuser.rows[0];
+
+    if (!user) {
+      return res.status(401).json({ msg: "Username is invalid" });
     }
 
     let pass = await bcrypt.compare(password, user.password_hash);
     if (!pass) {
-      return res.json({ msg: `Incorrect Password!\nTry again` });
+      return res.status(401).json({ msg: "Incorrect password! Try again" });
     }
 
     let token = jwt.sign(
@@ -59,8 +60,10 @@ router.post("/login", async (req, res) => {
       { expiresIn: "30min" },
     );
 
-    res.json({ msg: "Login successfull", token });
+    res.json({ msg: "Login successful", token });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
+
+export default router;
