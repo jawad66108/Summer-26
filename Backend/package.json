@@ -1,15 +1,25 @@
 {
+  "name": "sports-inventory-backend",
+  "version": "1.0.0",
+  "description": "Backend for College Sports Inventory Management System",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.6.2",
-    "jsonwebtoken": "^9.0.3",
-    "pg": "^8.23.0",
-    "zod": "^4.4.3"
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "morgan": "^1.11.0"
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.14"
   }
 }
