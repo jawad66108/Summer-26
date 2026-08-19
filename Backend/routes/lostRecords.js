@@ -19,13 +19,22 @@ async function findOrCreateLookup(table, value, column = "name") {
   return created.rows[0].id;
 }
 
+// POST /lost-records — admin only
 router.post("/", authenticate, requireAdmin, async (req, res) => {
   try {
-    let { itemId, quantity, wing, kitNumber, teamName } = req.body;
+    let {
+      itemId,
+      quantity,
+      cadetName,
+      kitNumber,
+      wing,
+      teamName,
+      event,
+      notes,
+    } = req.body;
 
-    // check the item's category to decide if teamName is required
     let itemCheck = await db.query(
-      `SELECT items.id, categories.name AS category
+      `SELECT items.id, items.name, categories.name AS category
        FROM items
        JOIN categories ON items.category_id = categories.id
        WHERE items.id = $1`,
@@ -45,20 +54,29 @@ router.post("/", authenticate, requireAdmin, async (req, res) => {
     }
 
     let wingId = wing ? await findOrCreateLookup("wings", wing) : null;
-    let kitNumberId = kitNumber
-      ? await findOrCreateLookup("kit_numbers", kitNumber, "number")
-      : null;
+
+    // kit_number is stored as raw text on lost_records, but we still register it
+    // in the kit_numbers lookup table so it shows up in future dropdowns
+    if (kitNumber) {
+      await findOrCreateLookup("kit_numbers", kitNumber, "number");
+    }
 
     let data = await db.query(
-      `INSERT INTO lost_records (item_id, quantity, status, team_name, wing_id, kit_number_id, reported_date)
-       VALUES ($1, $2, 'Lost', $3, $4, $5, NOW())
-       RETURNING *`,
+      `INSERT INTO lost_records
+    (item_id, item_name_snapshot, quantity, date, reported_by, status, notes, cadet_name, kit_number, wing_id, team_name, event)
+   VALUES ($1, $2, $3, CURRENT_DATE, $4, 'Pending Replacement', $5, $6, $7, $8, $9, $10)
+   RETURNING *`,
       [
         itemId,
+        item.name,
         quantity,
-        item.category === "Team" ? teamName : null,
+        req.user.id,
+        notes || null,
+        cadetName || null,
+        kitNumber || null,
         wingId,
-        kitNumberId,
+        item.category === "Team" ? teamName : null,
+        event || null,
       ],
     );
 
@@ -68,6 +86,7 @@ router.post("/", authenticate, requireAdmin, async (req, res) => {
   }
 });
 
+// GET /lost-records — both roles, filterable
 router.get("/", authenticate, async (req, res) => {
   try {
     let { category, sport, status, startDate, endDate } = req.query;
@@ -92,23 +111,23 @@ router.get("/", authenticate, async (req, res) => {
       paramIndex++;
     }
     if (startDate) {
-      conditions.push(`lost_records.reported_date >= $${paramIndex}`);
+      conditions.push(`lost_records.date >= $${paramIndex}`);
       values.push(startDate);
       paramIndex++;
     }
     if (endDate) {
-      conditions.push(`lost_records.reported_date <= $${paramIndex}`);
+      conditions.push(`lost_records.date <= $${paramIndex}`);
       values.push(endDate);
       paramIndex++;
     }
 
     let query = `
-      SELECT lost_records.*, items.name AS item_name,
-             categories.name AS category, sports.name AS sport
+      SELECT lost_records.*, categories.name AS category, sports.name AS sport, wings.name AS wing
       FROM lost_records
       JOIN items ON lost_records.item_id = items.id
       LEFT JOIN categories ON items.category_id = categories.id
       LEFT JOIN sports ON items.sport_id = sports.id
+      LEFT JOIN wings ON lost_records.wing_id = wings.id
     `;
 
     if (conditions.length > 0) query += ` WHERE ` + conditions.join(" AND ");
@@ -120,6 +139,7 @@ router.get("/", authenticate, async (req, res) => {
   }
 });
 
+// PATCH /lost-records/:id/replace — admin only, transactional
 router.patch("/:id/replace", authenticate, requireAdmin, async (req, res) => {
   let client = await db.connect();
   try {
