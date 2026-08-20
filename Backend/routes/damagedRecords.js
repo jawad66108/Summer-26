@@ -20,7 +20,7 @@ router.post("/", authenticate, requireAdmin, async (req, res) => {
     let data = await db.query(
       `INSERT INTO damaged_records
         (item_id, item_name_snapshot, quantity, date, reported_by, status, notes, damage_description, repair_status)
-       VALUES ($1, $2, $3, CURRENT_DATE, $4, 'Damaged', $5, $6, $7)
+       VALUES ($1, $2, $3, CURRENT_DATE, $4, 'Pending Replacement', $5, $6, $7)
        RETURNING *`,
       [
         itemId,
