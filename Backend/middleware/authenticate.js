@@ -12,10 +12,10 @@ export function authenticate(req, res, next) {
   let token = authHeader.split(" ")[1];
 
   try {
-    let decode = jwt.verify(token, JWT_SECRET);
-    req.user = decode;
+    let decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
     next();
   } catch (err) {
-    res.status(500).json({ msg: "Internal server error!" });
+    return res.status(401).json({ msg: "Invalid or expired token" });
   }
 }
