@@ -2,6 +2,8 @@ import express from "express";
 import db from "../DB/connection.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
 import { authenticate } from "../middleware/authenticate.js";
+import { createItemSchema } from "../validators/itemSchemas.js";
+
 let router = express.Router();
 
 router.get("/items", async (req, res) => {
@@ -80,9 +82,15 @@ async function findOrCreateLookup(table, name) {
   return created.rows[0].id;
 }
 
+// single, validated POST /items — old duplicate removed
 router.post("/items", authenticate, requireAdmin, async (req, res) => {
   try {
-    let { name, brand, category, sport, unit, quantity, threshold } = req.body;
+    let parsed = createItemSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+    let { name, brand, category, sport, unit, quantity, threshold } =
+      parsed.data;
 
     let brandId = await findOrCreateLookup("brands", brand);
     let categoryId = await findOrCreateLookup("categories", category);
