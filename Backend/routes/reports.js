@@ -308,4 +308,20 @@ router.get(
   },
 );
 
+router.get("/purchase-list/draft/:id", authenticate, requireAdmin, async (req, res) => {
+  try {
+    let { id } = req.params;
+    let draft = await db.query(`SELECT * FROM purchase_list_drafts WHERE id = $1`, [id]);
+
+    if (draft.rows.length === 0) {
+      return res.status(404).json({ msg: "Draft not found" });
+    }
+
+    res.json(draft.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
+

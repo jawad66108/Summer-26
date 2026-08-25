@@ -18,10 +18,11 @@ app.use(express.json());
 
 app.use("/api", auth);
 app.use("/api", items);
-app.use("/lost-records", lostRecordsRoutes);
-app.use("/damaged-records", damagedRecordsRoutes);
-app.use("/reports", reportsRoutes);
-app.use("/dashboard", dashboardRoutes);
+app.use("/api/lost-records", lostRecordsRoutes);
+app.use("/api/damaged-records", damagedRecordsRoutes);
+app.use("/api/reports", reportsRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.use(errorHandler); // registered once, last
 
