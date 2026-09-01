@@ -42,18 +42,21 @@ router.get("/lost-damaged", authenticate, async (req, res) => {
     }
 
     let query = `
-      SELECT combined.*, categories.name AS category, sports.name AS sport
-      FROM (
-        SELECT id, item_id, item_name_snapshot, quantity, date, status, 'Lost' AS record_type
-        FROM lost_records
-        UNION ALL
-        SELECT id, item_id, item_name_snapshot, quantity, date, status, 'Damaged' AS record_type
-        FROM damaged_records
-      ) AS combined
-      JOIN items ON combined.item_id = items.id
-      LEFT JOIN categories ON items.category_id = categories.id
-      LEFT JOIN sports ON items.sport_id = sports.id
-    `;
+  SELECT combined.*, categories.name AS category, sports.name AS sport, wings.name AS wing
+  FROM (
+    SELECT id, item_id, item_name_snapshot AS item_name, quantity, date, status,
+           cadet_name, wing_id, 'Lost' AS type
+    FROM lost_records
+    UNION ALL
+    SELECT id, item_id, item_name_snapshot AS item_name, quantity, date, status,
+           NULL AS cadet_name, NULL AS wing_id, 'Damaged' AS type
+    FROM damaged_records
+  ) AS combined
+  JOIN items ON combined.item_id = items.id
+  LEFT JOIN categories ON items.category_id = categories.id
+  LEFT JOIN sports ON items.sport_id = sports.id
+  LEFT JOIN wings ON combined.wing_id = wings.id
+`;
 
     if (conditions.length > 0) query += ` WHERE ` + conditions.join(" AND ");
     query += ` ORDER BY combined.date DESC`;
@@ -148,10 +151,13 @@ router.get("/purchase-list", authenticate, async (req, res) => {
   try {
     let data = await db.query(`
       SELECT
-        items.id AS item_id,
-        items.name AS item_name,
+        items.id AS "itemId",
+        items.name AS "name",
         categories.name AS category,
-        SUM(combined.quantity) AS total_needed
+        items.total_quantity AS "onHand",
+        items.current_price AS "unitCost",
+        SUM(combined.quantity) AS "reorderQty",
+        SUM(combined.quantity) * items.current_price AS "estCost"
       FROM (
         SELECT item_id, quantity FROM lost_records WHERE status = 'Pending Replacement'
         UNION ALL
@@ -159,7 +165,7 @@ router.get("/purchase-list", authenticate, async (req, res) => {
       ) AS combined
       JOIN items ON combined.item_id = items.id
       LEFT JOIN categories ON items.category_id = categories.id
-      GROUP BY items.id, items.name, categories.name
+      GROUP BY items.id, items.name, categories.name, items.total_quantity, items.current_price
       ORDER BY items.name
     `);
 
@@ -308,20 +314,27 @@ router.get(
   },
 );
 
-router.get("/purchase-list/draft/:id", authenticate, requireAdmin, async (req, res) => {
-  try {
-    let { id } = req.params;
-    let draft = await db.query(`SELECT * FROM purchase_list_drafts WHERE id = $1`, [id]);
+router.get(
+  "/purchase-list/draft/:id",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      let { id } = req.params;
+      let draft = await db.query(
+        `SELECT * FROM purchase_list_drafts WHERE id = $1`,
+        [id],
+      );
 
-    if (draft.rows.length === 0) {
-      return res.status(404).json({ msg: "Draft not found" });
+      if (draft.rows.length === 0) {
+        return res.status(404).json({ msg: "Draft not found" });
+      }
+
+      res.json(draft.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-
-    res.json(draft.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  },
+);
 
 export default router;
-

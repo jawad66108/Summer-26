@@ -37,13 +37,17 @@ router.get("/summary", authenticate, async (req, res) => {
 
     // 4. low-stock items
     let lowStockResult = await db.query(`
-      SELECT items.id, items.name, items.total_quantity, items.low_stock_threshold,
-             categories.name AS category
-      FROM items
-      LEFT JOIN categories ON items.category_id = categories.id
-      WHERE items.total_quantity < items.low_stock_threshold
-      ORDER BY items.total_quantity ASC
-    `);
+  SELECT items.id, items.name,
+         items.total_quantity AS "onHand",
+         items.low_stock_threshold AS "reorderAt",
+         categories.name AS category,
+         sports.name AS sport
+  FROM items
+  LEFT JOIN categories ON items.category_id = categories.id
+  LEFT JOIN sports ON items.sport_id = sports.id
+  WHERE items.total_quantity < items.low_stock_threshold
+  ORDER BY items.total_quantity ASC
+`);
 
     res.json({
       totalItems,
@@ -57,4 +61,3 @@ router.get("/summary", authenticate, async (req, res) => {
 });
 
 export default router;
-
