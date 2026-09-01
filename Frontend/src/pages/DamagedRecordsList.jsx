@@ -93,9 +93,16 @@ export default function DamagedRecordsList() {
               </option>
             ))}
           </select>
-          <option value="">All Statuses</option>
-          <option value="Pending Replacement">Pending Replacement</option>
-          <option value="Replaced">Replaced</option>
+          <select
+            value={filters.status}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, status: e.target.value }))
+            }
+          >
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Replaced">Replaced</option>
+          </select>
           <input
             type="date"
             value={filters.dateFrom}

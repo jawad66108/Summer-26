@@ -39,7 +39,7 @@ router.get("/summary", authenticate, async (req, res) => {
     let lowStockResult = await db.query(`
   SELECT items.id, items.name,
          items.total_quantity AS "onHand",
-         items.low_stock_threshold AS "reorderAt",
+         items.low_stock_threshold AS "reorderLevel",
          categories.name AS category,
          sports.name AS sport
   FROM items
