@@ -20,6 +20,7 @@ export default function DamagedRecordsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState(emptyFilters);
+  const [search, setSearch] = useState("");
   const { isAdmin } = useAuth();
   const [categories, setCategories] = useState([]);
   const [sports, setSports] = useState([]);
@@ -35,6 +36,11 @@ export default function DamagedRecordsList() {
 
   useEffect(load, [filters]);
 
+  useEffect(() => {
+    getLookup("categories").then(setCategories);
+    getLookup("sports").then(setSports);
+  }, []);
+
   async function handleMarkReplaced(id) {
     try {
       await markDamagedReplaced(id);
@@ -43,17 +49,25 @@ export default function DamagedRecordsList() {
       setError("Could not update this record.");
     }
   }
-  useEffect(() => {
-    getLookup("categories").then(setCategories);
-    getLookup("sports").then(setSports);
-  }, []);
+
+  const visibleRecords = records.filter((r) =>
+    (r.itemName || r.item_name || "")
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+
+  const pending = records.filter(
+    (r) => (r.status || "").toLowerCase() === "pending replacement",
+  ).length;
 
   return (
     <Layout>
       <div className="topbar">
         <div>
           <h2 className="display">Damaged Records</h2>
-          <div className="sub">{records.length} RECORDS</div>
+          <div className="sub">
+            {records.length} RECORDS · {pending} AWAITING REPLACEMENT
+          </div>
         </div>
         {isAdmin && (
           <button
@@ -65,8 +79,21 @@ export default function DamagedRecordsList() {
         )}
       </div>
 
-      <div className="panel">
-        <FilterBar onClear={() => setFilters(emptyFilters)}>
+      <div className="page-hero hero-damaged" />
+
+      <div className="panel" style={{ marginBottom: "16px" }}>
+        <FilterBar
+          onClear={() => {
+            setFilters(emptyFilters);
+            setSearch("");
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Search item…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <select
             value={filters.category}
             onChange={(e) =>
@@ -100,7 +127,7 @@ export default function DamagedRecordsList() {
             }
           >
             <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
+            <option value="Pending Replacement">Pending Replacement</option>
             <option value="Replaced">Replaced</option>
           </select>
           <input
@@ -118,44 +145,53 @@ export default function DamagedRecordsList() {
             }
           />
         </FilterBar>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="display">Damage Register</h3>
+          <span className="form-27b">Form 27-B</span>
+        </div>
 
         {loading && <div className="loading-note">Loading records…</div>}
+        {/* ...rest of table code stays exactly the same... */}
+
         {error && <div className="error-note">{error}</div>}
-        {!loading && !error && records.length === 0 && (
-          <div className="empty-note">
-            No damaged records match these filters.
-          </div>
+        {!loading && !error && visibleRecords.length === 0 && (
+          <div className="empty-note">Nothing logged under this filter.</div>
         )}
 
-        {!loading && !error && records.length > 0 && (
+        {!loading && !error && visibleRecords.length > 0 && (
           <table>
             <thead>
               <tr>
                 <th>Item</th>
-                <th>Description</th>
-                <th>Repair Status</th>
                 <th>Qty</th>
                 <th>Date</th>
+                <th>Remarks</th>
                 <th>Status</th>
                 {isAdmin && <th></th>}
               </tr>
             </thead>
             <tbody>
-              {records.map((r) => (
+              {visibleRecords.map((r) => (
                 <tr key={r.id} className="data-row">
-                  <td>{r.itemName || r.item_name}</td>
-                  <td>{r.damageDescription || r.damage_description}</td>
-                  <td>{r.repairStatus || r.repair_status}</td>
+                  <td>
+                    <b>{r.itemName || r.item_name}</b>
+                  </td>
                   <td className="mono-cell">{r.quantity}</td>
                   <td className="mono-cell">
                     {r.date || r.createdAt?.slice(0, 10)}
                   </td>
+                  <td style={{ fontStyle: "italic", color: "var(--ink-soft)" }}>
+                    {r.damageDescription || r.damage_description}
+                  </td>
                   <td>
-                    <Badge status={r.status || "Pending"} />
+                    <Badge status={r.status || "Pending Replacement"} />
                   </td>
                   {isAdmin && (
                     <td>
-                      {(r.status || "Pending").toLowerCase() !== "replaced" && (
+                      {(r.status || "").toLowerCase() !== "replaced" && (
                         <button
                           className="btn btn-ghost btn-sm"
                           onClick={() => handleMarkReplaced(r.id)}

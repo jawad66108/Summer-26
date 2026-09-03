@@ -1076,14 +1076,22 @@ tr.data-row:hover {
   transform: rotate(-1deg);
   box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.15);
 }
-.dashboard-hero {
+.page-hero {
   position: relative;
   height: 180px;
   margin: 20px 0 24px;
-  background-image: url("/dashboard-hero.jpg");
   background-size: cover;
   background-position: center;
   border: 1px solid var(--ink, #1c1b16);
+}
+.hero-dashboard {
+  background-image: url("/dashboard-hero.jpg");
+}
+.hero-damaged {
+  background-image: url("/damaged-hero.png");
+}
+.hero-lost {
+  background-image: url("/lost-hero.png");
 }
 
 /* ---- Dashboard: quick actions + latest entries ---- */
@@ -1167,4 +1175,52 @@ tr.data-row:hover {
   .quick-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.records-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--khaki);
+  border: 1.5px solid var(--ink);
+  border-bottom: none;
+}
+.records-toolbar input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+  font-family: "IBM Plex Mono";
+  font-size: 13px;
+  padding: 10px 12px;
+  border: 1px solid var(--ink);
+  background: var(--white-ish);
+}
+.records-toolbar input[type="text"]::placeholder {
+  color: var(--ink-soft);
+}
+
+.form-27b {
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.sports-footnote {
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-top: 14px;
+}
+
+.form-27b {
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
 }

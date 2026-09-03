@@ -70,8 +70,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="dashboard-hero" />
-
+      <div className="page-hero hero-dashboard" />
       {loading && <div className="loading-note">Loading summary…</div>}
       {error && <div className="error-note">{error}</div>}
 
