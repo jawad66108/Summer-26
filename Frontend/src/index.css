@@ -57,6 +57,10 @@ button {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 .brand {
   padding: 0 20px 24px 20px;
@@ -118,10 +122,10 @@ button {
   color: var(--white-ish);
 }
 .nav-item.current {
-  background: rgba(247, 244, 234, 0.1);
+  background: rgba(247, 244, 234, 0.14);
   color: var(--white-ish);
-  border-left-color: var(--rust);
-  font-weight: 500;
+  border-left: 4px solid var(--rust);
+  font-weight: 600;
 }
 .nav-section-label {
   font-family: "IBM Plex Mono";
@@ -1225,7 +1229,7 @@ tr.data-row:hover {
   text-transform: uppercase;
 }
 .hero-items {
-  background-image: url("/lost-hero.png");
+  background-image: url("/items-hero.png");
 }
 
 /* fixes cropping for squarer/badge-style images like "Heraldic Archives" */
@@ -1279,4 +1283,93 @@ tr.data-row:hover {
   letter-spacing: 0.1em;
   color: var(--ink-soft);
   text-transform: uppercase;
+}
+
+.hero-lostdamaged {
+  background-image: url("/lostdamaged-hero.jpg");
+}
+
+/* ---- Wing breakdown bars ---- */
+.wing-bar-row {
+  margin-bottom: 16px;
+}
+.wing-bar-row:last-child {
+  margin-bottom: 0;
+}
+.wing-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.wing-bar-label .count {
+  color: var(--ink-soft);
+}
+.wing-bar-track {
+  display: flex;
+  height: 12px;
+  width: 100%;
+  border: 1px solid var(--ink);
+  overflow: hidden;
+  background: var(--parchment-dark);
+}
+.wing-bar-lost {
+  background: var(--olive);
+}
+.wing-bar-damaged {
+  background: var(--rust);
+}
+
+/* ---- Sport count grid ---- */
+.sport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.sport-tile {
+  border: 1px dashed var(--line);
+  padding: 12px 14px;
+}
+.sport-tile .label {
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.sport-tile .value {
+  font-family: "Oswald";
+  font-size: 26px;
+  margin-top: 2px;
+}
+
+/* ---- Type badge (Lost / Damaged) ---- */
+.type-badge {
+  display: inline-block;
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid;
+  padding: 3px 8px;
+}
+.type-badge.lost {
+  border-color: var(--olive);
+  color: var(--olive);
+}
+.type-badge.damaged {
+  border-color: var(--rust);
+  color: var(--rust);
+}
+
+.filter-bar input[type="text"] {
+  flex: 2 1 220px;
+}
+.filter-bar select,
+.filter-bar input[type="date"] {
+  flex: 1 1 140px;
 }

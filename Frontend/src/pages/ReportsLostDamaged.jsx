@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import Badge from "../components/Badge";
 import FilterBar from "../components/FilterBar";
@@ -20,6 +20,7 @@ export default function ReportsLostDamaged() {
   const [filters, setFilters] = useState(emptyFilters);
   const [categories, setCategories] = useState([]);
   const [sports, setSports] = useState([]);
+  const [wings, setWings] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -29,16 +30,49 @@ export default function ReportsLostDamaged() {
       .finally(() => setLoading(false));
   }, [filters]);
 
+  useEffect(() => {
+    getLookup("categories").then(setCategories);
+    getLookup("sports").then(setSports);
+    getLookup("wings").then(setWings);
+  }, []);
+
   function handleExport(format) {
     window.open(getLostDamagedExportUrl(format, filters), "_blank");
   }
+
+  const byWing = useMemo(() => {
+    const buckets = wings.map((w) => ({ wing: w.name, lost: 0, damaged: 0 }));
+    rows.forEach((r) => {
+      if (!r.wing) return; // damaged records have no wing — correctly excluded, not faked
+      const bucket = buckets.find((b) => b.wing === r.wing);
+      if (!bucket) return;
+      if (r.type === "Lost") bucket.lost += Number(r.quantity) || 0;
+      else bucket.damaged += Number(r.quantity) || 0;
+    });
+    return buckets.filter((b) => b.lost > 0 || b.damaged > 0);
+  }, [rows, wings]);
+
+  const maxWing = Math.max(1, ...byWing.map((b) => b.lost + b.damaged));
+
+  const bySport = useMemo(() => {
+    const counts = {};
+    sports.forEach((s) => {
+      counts[s.name] = 0;
+    });
+    rows.forEach((r) => {
+      if (r.sport && counts[r.sport] !== undefined) counts[r.sport] += 1;
+    });
+    return Object.entries(counts).filter(([, n]) => n > 0);
+  }, [rows, sports]);
 
   return (
     <Layout>
       <div className="topbar">
         <div>
-          <h2 className="display">Lost &amp; Damaged Report</h2>
-          <div className="sub">{rows.length} RECORDS</div>
+          <h2 className="display">Lost &amp; Damaged</h2>
+          <div className="sub">
+            {rows.length} COMBINED ENTRIES · {sports.length} SPORTS
+          </div>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
           <button
@@ -56,7 +90,62 @@ export default function ReportsLostDamaged() {
         </div>
       </div>
 
-      <div className="panel">
+      <div className="page-hero hero-lostdamaged" />
+
+      <div className="dash-split">
+        <div className="panel">
+          <div className="panel-head">
+            <h3 className="display">Losses by Wing</h3>
+          </div>
+          <div className="panel-body">
+            {byWing.length === 0 ? (
+              <div className="empty-note">No wing-tagged records yet.</div>
+            ) : (
+              byWing.map((b) => (
+                <div className="wing-bar-row" key={b.wing}>
+                  <div className="wing-bar-label">
+                    <span>{b.wing}</span>
+                    <span className="count">
+                      {b.lost} Lost · {b.damaged} Damaged
+                    </span>
+                  </div>
+                  <div className="wing-bar-track">
+                    <div
+                      className="wing-bar-lost"
+                      style={{ width: `${(b.lost / maxWing) * 100}%` }}
+                    />
+                    <div
+                      className="wing-bar-damaged"
+                      style={{ width: `${(b.damaged / maxWing) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel-head">
+            <h3 className="display">Losses by Sport</h3>
+          </div>
+          <div className="panel-body">
+            <div className="sport-grid">
+              {bySport.map(([sport, n]) => (
+                <div className="sport-tile" key={sport}>
+                  <div className="label">{sport}</div>
+                  <div className="value mono">{n}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="panel"
+        style={{ marginTop: "24px", marginBottom: "16px" }}
+      >
         <FilterBar onClear={() => setFilters(emptyFilters)}>
           <select
             value={filters.category}
@@ -91,8 +180,7 @@ export default function ReportsLostDamaged() {
             }
           >
             <option value="">All Statuses</option>
-            <option value="Lost">Lost</option>
-            <option value="Damaged">Damaged</option>
+            <option value="Pending Replacement">Pending Replacement</option>
             <option value="Replaced">Replaced</option>
           </select>
           <input
@@ -110,6 +198,18 @@ export default function ReportsLostDamaged() {
             }
           />
         </FilterBar>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="display">Consolidated Register</h3>
+          <span
+            className="mono"
+            style={{ fontSize: "11px", color: "var(--ink-soft)" }}
+          >
+            {rows.length} ENTRIES
+          </span>
+        </div>
 
         {loading && <div className="loading-note">Loading report…</div>}
         {error && <div className="error-note">{error}</div>}
@@ -121,8 +221,8 @@ export default function ReportsLostDamaged() {
           <table>
             <thead>
               <tr>
-                <th>Item</th>
                 <th>Type</th>
+                <th>Item</th>
                 <th>Cadet</th>
                 <th>Wing</th>
                 <th>Qty</th>
@@ -132,17 +232,25 @@ export default function ReportsLostDamaged() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.itemName || r.item_name}</td>
-                  <td>{r.type || (r.isDamaged ? "Damaged" : "Lost")}</td>
-                  <td>{r.cadetName || r.cadet_name}</td>
-                  <td>{r.wing}</td>
+                <tr key={r.id} className="data-row">
+                  <td>
+                    <span
+                      className={`type-badge ${(r.type || "").toLowerCase()}`}
+                    >
+                      {r.type}
+                    </span>
+                  </td>
+                  <td>
+                    <b>{r.itemName || r.item_name}</b>
+                  </td>
+                  <td>{r.cadetName || r.cadet_name || "—"}</td>
+                  <td>{r.wing || "—"}</td>
                   <td className="mono-cell">{r.quantity}</td>
                   <td className="mono-cell">
                     {r.date || r.createdAt?.slice(0, 10)}
                   </td>
                   <td>
-                    <Badge status={r.status || "Pending"} />
+                    <Badge status={r.status || "Pending Replacement"} />
                   </td>
                 </tr>
               ))}
