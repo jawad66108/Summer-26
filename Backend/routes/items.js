@@ -186,8 +186,7 @@ router.delete("/items/:id", authenticate, requireAdmin, async (req, res) => {
 router.get("/lookups/:field", async (req, res) => {
   try {
     let { field } = req.params;
-    let allowed = ["brands", "categories", "sports", "units"];
-
+    let allowed = ["brands", "categories", "sports", "units", "wings"];
     if (!allowed.includes(field)) {
       return res.status(400).json({ msg: "Invalid lookup field" });
     }

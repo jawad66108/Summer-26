@@ -7,22 +7,16 @@ import { getLostRecords, markLostReplaced } from "../api/lostRecords";
 import { useAuth } from "../context/AuthContext";
 import { getLookup } from "../api/lookups";
 
-const emptyFilters = {
-  category: "",
-  sport: "",
-  status: "",
-  dateFrom: "",
-  dateTo: "",
-};
+const emptyFilters = { wing: "", status: "" };
 
 export default function LostRecordsList() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState(emptyFilters);
+  const [search, setSearch] = useState("");
   const { isAdmin } = useAuth();
-  const [categories, setCategories] = useState([]);
-  const [sports, setSports] = useState([]);
+  const [wings, setWings] = useState([]);
   const navigate = useNavigate();
 
   function load() {
@@ -34,9 +28,9 @@ export default function LostRecordsList() {
   }
 
   useEffect(load, [filters]);
+
   useEffect(() => {
-    getLookup("categories").then(setCategories);
-    getLookup("sports").then(setSports);
+    getLookup("wings").then(setWings);
   }, []);
 
   async function handleMarkReplaced(id) {
@@ -48,12 +42,25 @@ export default function LostRecordsList() {
     }
   }
 
+  const visibleRecords = records.filter((r) => {
+    const item = (r.itemName || r.item_name || "").toLowerCase();
+    const cadet = (r.cadetName || r.cadet_name || "").toLowerCase();
+    const q = search.toLowerCase();
+    return item.includes(q) || cadet.includes(q);
+  });
+
+  const pending = records.filter(
+    (r) => (r.status || "").toLowerCase() === "pending replacement",
+  ).length;
+
   return (
     <Layout>
       <div className="topbar">
         <div>
           <h2 className="display">Lost Records</h2>
-          <div className="sub">{records.length} RECORDS</div>
+          <div className="sub">
+            {records.length} RECORDS · {pending} AWAITING REPLACEMENT
+          </div>
         </div>
         {isAdmin && (
           <button
@@ -65,31 +72,31 @@ export default function LostRecordsList() {
         )}
       </div>
 
-      <div className="panel">
-        <FilterBar onClear={() => setFilters(emptyFilters)}>
+      <div className="page-hero hero-lost" />
+
+      <div className="panel" style={{ marginBottom: "16px" }}>
+        <FilterBar
+          onClear={() => {
+            setFilters(emptyFilters);
+            setSearch("");
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Search item or cadet…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <select
-            value={filters.category}
+            value={filters.wing}
             onChange={(e) =>
-              setFilters((f) => ({ ...f, category: e.target.value }))
+              setFilters((f) => ({ ...f, wing: e.target.value }))
             }
           >
-            <option value="">All Categories</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filters.sport}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, sport: e.target.value }))
-            }
-          >
-            <option value="">All Sports</option>
-            {sports.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name}
+            <option value="">All Wings</option>
+            {wings.map((w) => (
+              <option key={w.id} value={w.name}>
+                {w.name}
               </option>
             ))}
           </select>
@@ -100,32 +107,25 @@ export default function LostRecordsList() {
             }
           >
             <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
+            <option value="Pending Replacement">Pending Replacement</option>
             <option value="Replaced">Replaced</option>
           </select>
-          <input
-            type="date"
-            value={filters.dateFrom}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, dateFrom: e.target.value }))
-            }
-          />
-          <input
-            type="date"
-            value={filters.dateTo}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, dateTo: e.target.value }))
-            }
-          />
         </FilterBar>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="display">Lost Kit Register</h3>
+          <span className="form-27b">Form 27-B</span>
+        </div>
 
         {loading && <div className="loading-note">Loading records…</div>}
         {error && <div className="error-note">{error}</div>}
-        {!loading && !error && records.length === 0 && (
-          <div className="empty-note">No lost records match these filters.</div>
+        {!loading && !error && visibleRecords.length === 0 && (
+          <div className="empty-note">Nothing logged under this filter.</div>
         )}
 
-        {!loading && !error && records.length > 0 && (
+        {!loading && !error && visibleRecords.length > 0 && (
           <table>
             <thead>
               <tr>
@@ -140,9 +140,11 @@ export default function LostRecordsList() {
               </tr>
             </thead>
             <tbody>
-              {records.map((r) => (
+              {visibleRecords.map((r) => (
                 <tr key={r.id} className="data-row">
-                  <td>{r.itemName || r.item_name}</td>
+                  <td>
+                    <b>{r.itemName || r.item_name}</b>
+                  </td>
                   <td>{r.cadetName || r.cadet_name}</td>
                   <td className="mono-cell">{r.kitNumber || r.kit_number}</td>
                   <td>{r.wing}</td>
@@ -151,11 +153,11 @@ export default function LostRecordsList() {
                     {r.date || r.createdAt?.slice(0, 10)}
                   </td>
                   <td>
-                    <Badge status={r.status || "Pending"} />
+                    <Badge status={r.status || "Pending Replacement"} />
                   </td>
                   {isAdmin && (
                     <td>
-                      {(r.status || "Pending").toLowerCase() !== "replaced" && (
+                      {(r.status || "").toLowerCase() !== "replaced" && (
                         <button
                           className="btn btn-ghost btn-sm"
                           onClick={() => handleMarkReplaced(r.id)}

@@ -1056,7 +1056,7 @@ tr.data-row:hover {
 }
 
 /* ---- Dashboard hero banner ---- */
-.dashboard-hero {
+/* .dashboard-hero {
   position: relative;
   height: 180px;
   margin: 20px 0 24px;
@@ -1064,7 +1064,7 @@ tr.data-row:hover {
   background-size: cover;
   background-position: center;
   border: 1px solid var(--ink, #1c1b16);
-}
+} */
 .dashboard-hero-tag {
   position: absolute;
   left: 24px;
@@ -1221,6 +1221,62 @@ tr.data-row:hover {
   font-family: "IBM Plex Mono";
   font-size: 10px;
   letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.hero-items {
+  background-image: url("/lost-hero.png");
+}
+
+/* fixes cropping for squarer/badge-style images like "Heraldic Archives" */
+.hero-contain {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: var(--khaki);
+}
+
+/* if you saved a dedicated Purchase List banner, point this at it */
+.hero-purchase {
+  background-image: url("/live-hero.jpg");
+}
+
+/* ---- Purchase List: 3-stat row ---- */
+.stat-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* ---- Purchase List: highlighted total row ---- */
+.table-total-row td {
+  background: var(--khaki);
+  font-weight: 700;
+  border-top: 2px solid var(--ink);
+  padding: 14px 20px;
+}
+.table-total-row .total-label {
+  font-family: "IBM Plex Mono";
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* ---- Purchase List: signature block ---- */
+.signature-panel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 30px 24px 14px;
+}
+.signature-line {
+  border-top: 1px dashed var(--ink);
+  padding-top: 6px;
+  text-align: center;
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  letter-spacing: 0.1em;
   color: var(--ink-soft);
   text-transform: uppercase;
 }

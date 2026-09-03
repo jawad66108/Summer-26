@@ -32,18 +32,26 @@ export default function PurchaseListLive() {
     }
   }
 
+  const units = rows.reduce(
+    (sum, r) => sum + Number((r.reorderQty ?? r.reorder_qty) || 0),
+    0,
+  );
   const total = rows.reduce(
     (sum, r) =>
       sum +
-      ((r.reorderQty ?? r.reorder_qty) || 0) * (r.unitCost ?? r.unit_cost ?? 0),
+      Number((r.reorderQty ?? r.reorder_qty) || 0) *
+        Number(r.unitCost ?? r.unit_cost ?? 0),
     0,
   );
+
   return (
     <Layout>
       <div className="topbar">
         <div>
-          <h2 className="display">Purchase List (Live)</h2>
-          <div className="sub">{rows.length} ITEMS TO REORDER</div>
+          <h2 className="display">Purchase List</h2>
+          <div className="sub">
+            {rows.length} LINE ITEMS · {units} UNITS TO PROCURE
+          </div>
         </div>
         {isAdmin && (
           <button
@@ -56,15 +64,32 @@ export default function PurchaseListLive() {
         )}
       </div>
 
+      <div className="page-hero hero-purchase" />
+
+      <div className="stat-row-3">
+        <div className="stat-tag">
+          <div className="label">Line Items</div>
+          <div className="value mono">{rows.length}</div>
+        </div>
+        <div className="stat-tag">
+          <div className="label">Units</div>
+          <div className="value mono">{units}</div>
+        </div>
+        <div className="stat-tag">
+          <div className="label">Estimated Cost</div>
+          <div className="value mono">Rs {total.toLocaleString()}</div>
+        </div>
+      </div>
+
       <div className="panel">
         <div className="panel-head">
-          <h3 className="display">Reorder Needed</h3>
-          <span
-            className="mono"
-            style={{ fontSize: "11px", color: "var(--ink-soft)" }}
+          <h3 className="display">Requisition — Form 41</h3>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => window.print()}
           >
-            EST. TOTAL: Rs {total.toLocaleString()}
-          </span>
+            Print
+          </button>
         </div>
 
         {loading && <div className="loading-note">Loading purchase list…</div>}
@@ -80,15 +105,17 @@ export default function PurchaseListLive() {
                 <th>Item</th>
                 <th>Category</th>
                 <th>On Hand</th>
-                <th>Reorder Qty</th>
-                <th>Unit Cost</th>
-                <th>Est. Cost</th>
+                <th>Qty</th>
+                <th>Unit Rate</th>
+                <th>Amount</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id}>
-                  <td>{r.name}</td>
+                  <td>
+                    <b>{r.name}</b>
+                  </td>
                   <td>{r.category}</td>
                   <td className="mono-cell">{r.quantity ?? r.onHand}</td>
                   <td className="mono-cell">{r.reorderQty ?? r.reorder_qty}</td>
@@ -105,7 +132,23 @@ export default function PurchaseListLive() {
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr className="table-total-row">
+                <td colSpan={5} className="total-label">
+                  Total Estimate
+                </td>
+                <td className="mono-cell">Rs {total.toLocaleString()}</td>
+              </tr>
+            </tfoot>
           </table>
+        )}
+
+        {!loading && !error && rows.length > 0 && (
+          <div className="signature-panel">
+            <div className="signature-line">Prepared By</div>
+            <div className="signature-line">Checked By</div>
+            <div className="signature-line">Approved By</div>
+          </div>
         )}
       </div>
     </Layout>

@@ -37,6 +37,7 @@ export default function ItemsList() {
       cancelled = true;
     };
   }, [filters]);
+
   useEffect(() => {
     getLookup("categories").then(setCategories);
     getLookup("sports").then(setSports);
@@ -45,7 +46,7 @@ export default function ItemsList() {
   function statusFor(item) {
     const qty = item.quantity ?? item.onHand ?? 0;
     const reorder = item.reorderLevel ?? item.reorder_level ?? 0;
-    return qty <= reorder ? "Low" : "OK";
+    return qty <= reorder ? "Low" : "In Stock";
   }
 
   return (
@@ -65,7 +66,9 @@ export default function ItemsList() {
         )}
       </div>
 
-      <div className="panel">
+      <div className="page-hero hero-items" />
+
+      <div className="panel" style={{ marginBottom: "16px" }}>
         <FilterBar onClear={() => setFilters(emptyFilters)}>
           <input
             type="text"
@@ -81,9 +84,10 @@ export default function ItemsList() {
               setFilters((f) => ({ ...f, category: e.target.value }))
             }
           >
-            {sports.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name}
+            <option value="">All Categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.name}>
+                {c.name}
               </option>
             ))}
           </select>
@@ -94,29 +98,34 @@ export default function ItemsList() {
             }
           >
             <option value="">All Sports</option>
-            <option value="Hockey">Hockey</option>
-            <option value="Football">Football</option>
-            <option value="Cricket">Cricket</option>
-            <option value="Volleyball">Volleyball</option>
+            {sports.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
           </select>
         </FilterBar>
+      </div>
 
+      <div className="panel">
         {loading && <div className="loading-note">Loading items…</div>}
         {error && <div className="error-note">{error}</div>}
 
         {!loading && !error && items.length === 0 && (
-          <div className="empty-note">No items match these filters.</div>
+          <div className="empty-note">No kit matches this filter.</div>
         )}
 
         {!loading && !error && items.length > 0 && (
           <table>
             <thead>
               <tr>
+                <th>Item #</th>
                 <th>Item</th>
                 <th>Category</th>
                 <th>Sport</th>
                 <th>Unit</th>
                 <th>On Hand</th>
+                <th>Value</th>
                 <th>Status</th>
                 {isAdmin && <th></th>}
               </tr>
@@ -128,6 +137,9 @@ export default function ItemsList() {
                   className="data-row"
                   onClick={() => navigate(`/items/${item.id}`)}
                 >
+                  <td className="mono-cell">
+                    ITEM-{String(item.id).padStart(3, "0")}
+                  </td>
                   <td>
                     <div className="row-with-thumb">
                       {item.photoUrl || item.photo_url ? (
@@ -150,6 +162,12 @@ export default function ItemsList() {
                   <td>{item.sport}</td>
                   <td className="mono-cell">{item.unit}</td>
                   <td className="mono-cell">{item.quantity ?? item.onHand}</td>
+                  <td className="mono-cell">
+                    Rs{" "}
+                    {Number(
+                      item.unitCost ?? item.current_price ?? 0,
+                    ).toLocaleString()}
+                  </td>
                   <td>
                     <Badge status={statusFor(item)} />
                   </td>
