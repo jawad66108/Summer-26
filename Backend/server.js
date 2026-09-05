@@ -22,10 +22,13 @@ app.use("/api/lost-records", lostRecordsRoutes);
 app.use("/api/damaged-records", damagedRecordsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/uploads", express.static("uploads"));
 
 app.use(errorHandler); // registered once, last
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
-});
+export default app;
+
+if (process.env.NODE_ENV !== "production") {
+  app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server is running on port ${process.env.PORT || 3000}`);
+  });
+}

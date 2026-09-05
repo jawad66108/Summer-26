@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import express from "express";
 import db from "../DB/connection.js";
 import rateLimit from "express-rate-limit";
+import { registerSchema, loginSchema } from "../validators/authSchemas.js";
 
 let loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -15,7 +16,11 @@ let JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/register", async (req, res) => {
   try {
-    let { username, password, role } = req.body;
+    let parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+    let { username, password, role } = parsed.data;
 
     let Finduser = await db.query(`SELECT * FROM users WHERE username = $1`, [
       username,
@@ -44,12 +49,15 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", loginLimiter, async (req, res) => {
   try {
-    let { username, password } = req.body;
+    let parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+    let { username, password } = parsed.data;
 
     let checkuser = await db.query(`SELECT * FROM users WHERE username = $1`, [
       username,
     ]);
-
     let user = checkuser.rows[0];
 
     if (!user) {
