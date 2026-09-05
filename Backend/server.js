@@ -16,8 +16,9 @@ let app = express();
 app.use(
   cors({
     origin: [
-      "https://summer-26-tve2.vercel.app", // current live domain
-      "https://kitledger-frontend.vercel.app", // in case it's active too
+      "https://sportskit.vercel.app", // your actual live frontend domain
+      "https://summer-26-tve2.vercel.app", // keep in case still used
+      "https://kitledger-frontend.vercel.app", // keep in case you add this domain later
       "http://localhost:5173", // local dev
     ],
     credentials: true,
