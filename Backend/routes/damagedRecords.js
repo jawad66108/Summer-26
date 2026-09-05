@@ -74,7 +74,8 @@ router.get("/", authenticate, async (req, res) => {
     }
 
     let query = `
-      SELECT damaged_records.*, categories.name AS category, sports.name AS sport
+      SELECT damaged_records.*, damaged_records.item_name_snapshot AS item_name,
+       categories.name AS category, sports.name AS sport
       FROM damaged_records
       JOIN items ON damaged_records.item_id = items.id
       LEFT JOIN categories ON items.category_id = categories.id

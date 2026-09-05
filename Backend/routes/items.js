@@ -2,7 +2,29 @@ import express from "express";
 import db from "../DB/connection.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
 import { authenticate } from "../middleware/authenticate.js";
+import { createItemSchema } from "../validators/itemSchemas.js";
+import multer from "multer";
+import path from "path";
+
 let router = express.Router();
+
+let storage = multer.diskStorage({
+  destination: "./uploads",
+  filename: (req, file, cb) => {
+    let ext = path.extname(file.originalname);
+    cb(null, `item-${Date.now()}${ext}`);
+  },
+});
+
+let upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    let allowed = [".jpg", ".jpeg", ".png", ".webp"];
+    let ext = path.extname(file.originalname).toLowerCase();
+    cb(null, allowed.includes(ext));
+  },
+});
 
 router.get("/items", async (req, res) => {
   try {
@@ -55,7 +77,27 @@ router.get("/items/:id", async (req, res) => {
   try {
     let ID = req.params.id;
 
-    let data = await db.query(`SELECT * FROM items WHERE id = $1`, [ID]);
+    let data = await db.query(
+      `
+      SELECT
+        items.id, items.name,
+        items.total_quantity AS quantity,
+        items.low_stock_threshold AS "reorderLevel",
+        items.current_price AS "unitCost",
+        items.photo_url AS "photoUrl",
+        brands.name AS brand,
+        categories.name AS category,
+        sports.name AS sport,
+        units.name AS unit
+      FROM items
+      LEFT JOIN brands ON items.brand_id = brands.id
+      LEFT JOIN categories ON items.category_id = categories.id
+      LEFT JOIN sports ON items.sport_id = sports.id
+      LEFT JOIN units ON items.unit_id = units.id
+      WHERE items.id = $1
+    `,
+      [ID],
+    );
 
     if (data.rows.length === 0) {
       return res.status(404).json({ msg: "Invalid ID" });
@@ -80,26 +122,48 @@ async function findOrCreateLookup(table, name) {
   return created.rows[0].id;
 }
 
-router.post("/items", authenticate, requireAdmin, async (req, res) => {
-  try {
-    let { name, brand, category, sport, unit, quantity, threshold } = req.body;
+// single, validated POST /items — old duplicate removed
+router.post(
+  "/items",
+  authenticate,
+  requireAdmin,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      let parsed = createItemSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.flatten() });
+      }
+      let { name, brand, category, sport, unit, quantity, threshold } =
+        parsed.data;
 
-    let brandId = await findOrCreateLookup("brands", brand);
-    let categoryId = await findOrCreateLookup("categories", category);
-    let sportId = await findOrCreateLookup("sports", sport);
-    let unitId = await findOrCreateLookup("units", unit);
+      let brandId = await findOrCreateLookup("brands", brand);
+      let categoryId = await findOrCreateLookup("categories", category);
+      let sportId = await findOrCreateLookup("sports", sport);
+      let unitId = await findOrCreateLookup("units", unit);
 
-    let data = await db.query(
-      `INSERT INTO items (name, brand_id, category_id, sport_id, unit_id, quantity, threshold)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [name, brandId, categoryId, sportId, unitId, quantity, threshold],
-    );
+      let photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    res.status(201).json(data.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+      let data = await db.query(
+        `INSERT INTO items (name, brand_id, category_id, sport_id, unit_id, total_quantity, low_stock_threshold, photo_url)
+   VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        [
+          name,
+          brandId,
+          categoryId,
+          sportId,
+          unitId,
+          quantity,
+          threshold,
+          photoUrl,
+        ],
+      );
+      res.status(201).json(data.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+);
 
 router.delete("/items/:id", authenticate, requireAdmin, async (req, res) => {
   try {
@@ -122,8 +186,7 @@ router.delete("/items/:id", authenticate, requireAdmin, async (req, res) => {
 router.get("/lookups/:field", async (req, res) => {
   try {
     let { field } = req.params;
-    let allowed = ["brands", "categories", "sports", "units"];
-
+    let allowed = ["brands", "categories", "sports", "units", "wings"];
     if (!allowed.includes(field)) {
       return res.status(400).json({ msg: "Invalid lookup field" });
     }
@@ -134,5 +197,61 @@ router.get("/lookups/:field", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.put(
+  "/items/:id",
+  authenticate,
+  requireAdmin,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      let { id } = req.params;
+      let { name, brand, category, sport, unit, quantity, reorderLevel } =
+        req.body;
+
+      let brandId = brand ? await findOrCreateLookup("brands", brand) : null;
+      let categoryId = category
+        ? await findOrCreateLookup("categories", category)
+        : null;
+      let sportId = sport ? await findOrCreateLookup("sports", sport) : null;
+      let unitId = unit ? await findOrCreateLookup("units", unit) : null;
+      let photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+      let data = await db.query(
+        `UPDATE items SET
+         name = COALESCE($1, name),
+         brand_id = COALESCE($2, brand_id),
+         category_id = COALESCE($3, category_id),
+         sport_id = COALESCE($4, sport_id),
+         unit_id = COALESCE($5, unit_id),
+         total_quantity = COALESCE($6, total_quantity),
+         low_stock_threshold = COALESCE($7, low_stock_threshold),
+         photo_url = COALESCE($8, photo_url),
+         last_updated = NOW()
+       WHERE id = $9
+       RETURNING *`,
+        [
+          name || null,
+          brandId,
+          categoryId,
+          sportId,
+          unitId,
+          quantity ? Number(quantity) : null,
+          reorderLevel ? Number(reorderLevel) : null,
+          photoUrl,
+          id,
+        ],
+      );
+
+      if (data.rows.length === 0) {
+        return res.status(404).json({ msg: "Item not found" });
+      }
+
+      res.json(data.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+);
 
 export default router;

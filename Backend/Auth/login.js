@@ -2,6 +2,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import express from "express";
 import db from "../DB/connection.js";
+import rateLimit from "express-rate-limit";
+
+let loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: { message: "Too many login attempts, try again later" } },
+});
 
 let router = express.Router();
 let JWT_SECRET = process.env.JWT_SECRET;
@@ -35,7 +42,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     let { username, password } = req.body;
 
