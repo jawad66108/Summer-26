@@ -4,27 +4,27 @@ import { requireAdmin } from "../middleware/requireAdmin.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { createItemSchema } from "../validators/itemSchemas.js";
 import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import path from "path";
 
 let router = express.Router();
 
-let storage = multer.diskStorage({
-  destination: "./uploads",
-  filename: (req, file, cb) => {
-    let ext = path.extname(file.originalname);
-    cb(null, `item-${Date.now()}${ext}`);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+let storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "kit-ledger-items",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 });
 
-let upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    let allowed = [".jpg", ".jpeg", ".png", ".webp"];
-    let ext = path.extname(file.originalname).toLowerCase();
-    cb(null, allowed.includes(ext));
-  },
-});
+let upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 router.get("/items", async (req, res) => {
   try {
@@ -142,8 +142,7 @@ router.post(
       let sportId = await findOrCreateLookup("sports", sport);
       let unitId = await findOrCreateLookup("units", unit);
 
-      let photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
+      let photoUrl = req.file ? req.file.path : null;
       let data = await db.query(
         `INSERT INTO items (name, brand_id, category_id, sport_id, unit_id, total_quantity, low_stock_threshold, photo_url)
    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
@@ -215,8 +214,7 @@ router.put(
         : null;
       let sportId = sport ? await findOrCreateLookup("sports", sport) : null;
       let unitId = unit ? await findOrCreateLookup("units", unit) : null;
-      let photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
+      let photoUrl = req.file ? req.file.path : null;
       let data = await db.query(
         `UPDATE items SET
          name = COALESCE($1, name),
