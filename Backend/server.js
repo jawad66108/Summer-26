@@ -13,7 +13,16 @@ import { errorHandler } from "./middleware/errorHandler.js";
 dotenv.config();
 
 let app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://summer-26-tve2.vercel.app", // current live domain
+      "https://kitledger-frontend.vercel.app", // in case it's active too
+      "http://localhost:5173", // local dev
+    ],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 app.use("/api", auth);
